@@ -3,7 +3,7 @@
 
 """
 This file is part of Commix Project (https://commixproject.com).
-Copyright (c) 2014-2019 Anastasios Stasinopoulos (@ancst).
+Copyright (c) 2014-2026 Anastasios Stasinopoulos (@ancst).
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -14,13 +14,13 @@ For more see the file 'readme/COPYING' for copying permission.
 """
 
 import sys
+from src.utils import settings
 
 """
 Show version number and exit.
 """
 def show_version():
-  from src.utils import settings
-  print(settings.VERSION)
+  settings.print_data_to_stdout(settings.VERSION)
   raise SystemExit()
 
 """
@@ -28,9 +28,13 @@ Check python version number.
 """
 def python_version():
   PYTHON_VERSION = sys.version.split()[0]
-  if PYTHON_VERSION >= "3" or PYTHON_VERSION < "2.6":
-    err_msg = "[x] Critical: Incompatible Python version (" 
-    err_msg += PYTHON_VERSION + ") detected. "
-    err_msg += "Use Python version 2.6.x or 2.7.x.\n"
-    print(err_msg)
-    raise SystemExit()
+  if PYTHON_VERSION.split(".")[0] != "3":
+    err_msg = "Unsupported Python version detected: "
+    err_msg += PYTHON_VERSION + ". "
+    err_msg += settings.APPLICATION + " requires Python 3.7 or later."
+    settings.print_data_to_stdout(settings.print_critical_msg(err_msg))
+    # Exits non-zero: a caller that cannot tell this apart from a finished run - a CI job, or any
+    # script around commix - would otherwise read the wrong interpreter as a successful one.
+    raise SystemExit(1)
+
+# eof
